@@ -1,4 +1,4 @@
-# What about security specific to Javascript ?
+# What about security risks specific to Javascript ?
 
 This article was done using my notes from a brilliant talk, between Troy Hunt and Aaron Powell  : "Play by Play: JavaScript Security" (2018), available on Pluralsight : url: https://app.pluralsight.com/player?course=play-by-play-javascript-security&author=troy-hunt&name=31118774-8b2e-45f7-bbab-928ddc923448&clip=3&mode=live
 
