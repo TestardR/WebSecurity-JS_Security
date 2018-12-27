@@ -1,35 +1,31 @@
-What about security specific to Javascript ?
+# What about security specific to Javascript ?
 
 This article was done using my notes from a brilliant talk, between Troy Hunt and Aaron Powell  : "Play by Play: JavaScript Security" (2018), available on Pluralsight : url: https://app.pluralsight.com/player?course=play-by-play-javascript-security&author=troy-hunt&name=31118774-8b2e-45f7-bbab-928ddc923448&clip=3&mode=live
 
 
-Managing Auth Tokens
+## Managing Auth Tokens
+
+Modern login and registration forms use authorization tokens, known as auth tokens.Â They areÂ givenÂ to theÂ clientÂ by theÂ server.Â TheyÂ allowÂ for permission handling within theÂ application.Â Auth tokens usually persist on theÂ clientÂ allowingÂ theÂ userÂ to refresh itsÂ browserÂ without being logged out.Â 
+
+Traditionally, auth token wouldÂ sitÂ in aÂ cookie.Â If you did notÂ haveÂ aÂ cookie, it wouldÂ probablyÂ be inÂ the URL, which is terribleÂ for all sort ofÂ reasons.Â CookiesÂ are great, theyÂ allowÂ aÂ lotÂ ofÂ things,Â such asÂ auto-expiry of the auth token.Â However,Â cookiesÂ haveÂ aÂ downside.Â ToÂ makeÂ themÂ secure,Â youÂ haveÂ toÂ turnÂ themÂ intoÂ HttpOnlyÂ cookies.Â When aÂ cookieÂ is flaggedÂ HttpOnly,Â itÂ can't be accessed by a client script.Â WhenÂ youÂ callÂ forÂ async services and need toÂ sendÂ an auth token,Â youÂ haveÂ to be able toÂ accessÂ it, which meansÂ itÂ can't beÂ HttpOnly.Â So securing cookiesÂ makesÂ them unusable.Â 
+
+ToÂ circumventÂ thisÂ issueÂ withÂ cookies, weÂ haveÂ otherÂ possibilities.Â Browser haveÂ builtÂ inÂ storage.Â SessionÂ storageÂ isÂ entirelyÂ owned by a particular browser window or tab.Â As soon as weÂ closeÂ theÂ windowÂ or tab, itÂ killsÂ theÂ sessionÂ storage.Â It'sÂ a little bit like aÂ cookieÂ expiring at theÂ endÂ ofÂ theÂ session.Â However,Â cookiesÂ haveÂ a precise expiration date, whichÂ isÂ not theÂ caseÂ forÂ sessionÂ storage.Â On theÂ upside, auth tokens doÂ not get sentÂ with everyÂ requestÂ like aÂ cookie.Â On theÂ downÂ side,Â weÂ can'tÂ protectÂ it from a client script,Â such asÂ XSS, asÂ weÂ wouldÂ doÂ with aÂ HttpOnlyÂ cookie.
+
+ToÂ rememberÂ identitiesÂ betweenÂ sessions,Â weÂ wouldÂ useÂ localÂ storage.Â SessionÂ storageÂ and localÂ storageÂ areÂ prettyÂ similar, exceptÂ sessionÂ storageÂ isÂ hereÂ for theÂ lifetimeÂ of yourÂ browser.Â AnÂ auth token would persist even though youÂ closedÂ andÂ openedÂ another browser window.Â 
 
 
+## Caching Strings and Service Workers
 
-Modern login and registration forms use authorization tokens, known as auth tokens. They are given to the client by the server. They allow for permission handling within the application. Auth tokens usually persist on the client allowing the user to refresh its browser without being logged out. 
+Service workersÂ areÂ veryÂ popular, they areÂ appearingÂ on allÂ browsers,Â such asÂ Chrome, Firefox, iOS, and Android, allowing developers toÂ buildÂ progressive web applications.Â AÂ service workerÂ runsÂ inÂ theÂ backgroundÂ of a web application andÂ continuesÂ toÂ runÂ even when you don't have aÂ browserÂ open,Â background processing.Â ItÂ isÂ usedÂ toÂ doÂ thingsÂ like intercept network requests andÂ storeÂ theÂ responseÂ in theÂ cacheÂ storage.
 
-
-Traditionally, auth token would sit in a cookie. If you did not have a cookie, it would probably be in the URL, which is terrible for all sort of reasons. Cookies are great, they allow a lot of things, such as auto-expiry of the auth token. However, cookies have a downside. To make them secure, you have to turn them into HttpOnly cookies. When a cookie is flagged HttpOnly, it can't be accessed by a client script. When you call for async services and need to send an auth token, you have to be able to access it, which means it can't be HttpOnly. So securing cookies makes them unusable. 
-
-To circumvent this issue with cookies, we have other possibilities. Browser have built in storage. Session storage is entirely owned by a particular browser window or tab. As soon as we close the window or tab, it kills the session storage. It's a little bit like a cookie expiring at the end of the session. However, cookies have a precise expiration date, which is not the case for session storage. On the upside, auth tokens do not get sent with every request like a cookie. On the down side, we can't protect it from a client script, such as XSS, as we would do with a HttpOnly cookie.
-
-To remember identities between sessions, we would use local storage. Session storage and local storage are pretty similar, except session storage is here for the lifetime of your browser. An auth token would persist even though you closed and opened another browser window. 
+LikeÂ sessionÂ and localÂ storages,Â cacheÂ storageÂ can beÂ accessedÂ by anything that isÂ runningÂ onÂ your page contextÂ as itÂ isÂ a global object, including attacker scriptsÂ (XSS).Â ToÂ protectÂ yourÂ cacheÂ storage, youÂ haveÂ toÂ runÂ itÂ through HTTPS orÂ localhost, which isÂ consideredÂ as a secure context.Â 
 
 
+## Third-party Library Vulnerabilities
 
-Caching Strings and Service Workers
+Many developers import libraries to theirÂ applicationsÂ throughÂ CDNÂ (Content Delivery Network)Â orÂ servicesÂ in theÂ sameÂ manner.Â OwnersÂ ofÂ librariesÂ can merelyÂ doÂ whatever theyÂ wantÂ with them.Â ModifyÂ them without youÂ knowingÂ exactly whatÂ areÂ theÂ changesÂ about.Â AÂ goodÂ way toÂ dealÂ withÂ contentÂ that you import on yourÂ applicationÂ is through CSPÂ (Content Security Policy).Â AfterÂ addingÂ CSP to yourÂ applicationÂ and setting itÂ accordingÂ to yourÂ needs.Â ItÂ will makeÂ sureÂ that theÂ librariesÂ broughtÂ on yourÂ applicationÂ haveÂ not been temperedÂ with.Â 
 
-Service workers are very popular, they are appearing on all browsers, such as Chrome, Firefox, iOS, and Android, allowing developers to build progressive web applications. A service worker runs in the background of a web application and continues to run even when you don't have a browser open, background processing. It is used to do things like intercept network requests and store the response in the cache storage.
-
-Like session and local storages, cache storage can be accessed by anything that is running on your page context as it is a global object, including attacker scripts (XSS). To protect your cache storage, you have to run it through HTTPS or localhost, which is considered as a secure context. 
-
-
-Third-party Library Vulnerabilities
-
-Many developers import libraries to their applications through CDN (Content Delivery Network) or services in the same manner. Owners of libraries can merely do whatever they want with them. Modify them without you knowing exactly what are the changes about. A good way to deal with content that you import on your application is through CSP (Content Security Policy). After adding CSP to your application and setting it according to your needs. It will make sure that the libraries brought on your application have not been tempered with. 
-
-NPM packages is a source of vulnerabilities. More and more, developers are downloading dependencies through NPM package manager to run their applications. People are downloading a lot of content through NPM, because its the fast track to building applications. But what happens when you can't trust what you downloaded? Snyk.io is a site you can look at to find out about vulnerabilities in your dependencies. Typosquatting is the practice of masquerading as another similar package to push malicious content. Be aware that you might download malicious dependencies mistyping for the one you were really looking for. 
+NPMÂ packagesÂ isÂ aÂ sourceÂ ofÂ vulnerabilities.Â More and more,Â developersÂ areÂ downloadingÂ dependenciesÂ throughÂ NPMÂ package manager toÂ runÂ theirÂ applications.Â PeopleÂ areÂ downloadingÂ aÂ lotÂ ofÂ contentÂ throughÂ NPM, because its theÂ fastÂ track toÂ buildingÂ applications.Â But what happens when you can't trust what youÂ downloaded?Â Snyk.ioÂ isÂ aÂ siteÂ youÂ canÂ lookÂ at to find out aboutÂ vulnerabilitiesÂ in yourÂ dependencies.Â TyposquattingÂ isÂ theÂ practiceÂ of masquerading as another similar package toÂ pushÂ maliciousÂ content.Â Be aware thatÂ youÂ might download malicious dependencies mistyping for theÂ oneÂ youÂ were reallyÂ lookingÂ for.Â 
 
 
 
